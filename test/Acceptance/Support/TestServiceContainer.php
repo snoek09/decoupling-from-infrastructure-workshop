@@ -6,8 +6,11 @@ namespace Test\Acceptance\Support;
 use Common\EventDispatcher\EventDispatcher;
 use DevPro\Application\CreateUser;
 use DevPro\Application\ScheduleTraining;
+use DevPro\Application\UpcomingEvent;
+use DevPro\Application\UpcomingEvents;
 use DevPro\Domain\Model\Ticket\TicketRepository;
 use DevPro\Domain\Model\Training\TrainingRepository;
+use DevPro\Domain\Model\Training\TrainingWasScheduled;
 use DevPro\Domain\Model\User\UserRepository;
 
 final class TestServiceContainer
@@ -42,6 +45,11 @@ final class TestServiceContainer
      */
     private $ticketRepository;
 
+    /**
+     * @var InMemoryUpcomingEvents | null
+     */
+    private $upcomingEvents;
+
     private function clock(): ClockForTesting
     {
         return $this->clock ?? $this->clock = new ClockForTesting();
@@ -60,8 +68,14 @@ final class TestServiceContainer
                 }
             );
 
-            // Register your own subscribers here:
-            // $this->eventDispatcher->registerSubscriber(EventClass::class, [$this->service(), 'methodName']);
+            $this->eventDispatcher->registerSubscriber(
+                TrainingWasScheduled::class,
+                function (TrainingWasScheduled $event): void {
+                    $this->upcomingEvents()->add(
+                        new UpcomingEvent($event->title())
+                    );
+                }
+            );
         }
 
         return $this->eventDispatcher;
@@ -98,6 +112,11 @@ final class TestServiceContainer
     public function ticketRepository(): TicketRepository
     {
         return $this->ticketRepository ?? $this->ticketRepository = new InMemoryTicketRepository();
+    }
+
+    public function upcomingEvents(): UpcomingEvents
+    {
+        return $this->upcomingEvents ?? $this->upcomingEvents = new InMemoryUpcomingEvents();
     }
 
     public function createUser(): CreateUser

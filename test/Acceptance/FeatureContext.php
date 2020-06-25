@@ -21,6 +21,11 @@ final class FeatureContext implements Context
      */
     private $container;
 
+    /**
+     * @var string
+     */
+    private $upcomingEventTitle;
+
     public function __construct()
     {
         $this->container = new TestServiceContainer();
@@ -40,6 +45,7 @@ final class FeatureContext implements Context
     public function theOrganizerSchedulesANewTrainingCalledFor(string $title, string $date): void
     {
         $this->container->scheduleTraining()->schedule($this->theOrganizer()->asString(), $title, $date);
+        $this->upcomingEventTitle = $title;
     }
 
     /**
