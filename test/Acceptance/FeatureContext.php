@@ -6,6 +6,9 @@ namespace Test\Acceptance;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use BehatExpectException\ExpectException;
+use DateTimeImmutable;
+use DevPro\Domain\Model\Training\Training;
+use DevPro\Domain\Model\Training\TrainingId;
 use DevPro\Domain\Model\User\UserId;
 use Test\Acceptance\Support\TestServiceContainer;
 
@@ -36,7 +39,7 @@ final class FeatureContext implements Context
      */
     public function theOrganizerSchedulesANewTrainingCalledFor(string $title, string $date): void
     {
-        throw new PendingException();
+        $this->container->scheduleTraining()->schedule($this->theOrganizer()->asString(), $title, $date);
     }
 
     /**
